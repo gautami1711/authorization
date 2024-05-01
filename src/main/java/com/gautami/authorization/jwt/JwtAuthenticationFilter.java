@@ -1,5 +1,7 @@
 package com.gautami.authorization.jwt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,9 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
+	private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
+
 	@Autowired
 	private JwtAuthenticationHelper jwtHelper;
 	
@@ -32,11 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		String token =null;
 		if(requestHeader!=null && requestHeader.startsWith("Bearer"))
 		{
+			log.debug("Starting filtering of request!!!!!");
 			token = requestHeader.substring(7);
 			username= jwtHelper.getUsernameFromToken(token);
+			log.info("Fetched the username from the token: {}", username);
 			if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null)
 			{
 				UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				log.info("User details fetched from db");
 				if(!jwtHelper.isTokenExpired(token))
 				{
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(token, null,userDetails.getAuthorities());

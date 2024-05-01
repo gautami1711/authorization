@@ -3,6 +3,8 @@ package com.gautami.authorization.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,10 @@ import java.util.Map;
 
 @Component
 public class JwtAuthenticationHelper {
+
+	private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationHelper.class);
+
+
 	private String secret = "thisisthesecretkeyformyapptovalidateusersandreturnbackavalidtokencontainingalltherequireddata";
 	private static final long JWT_TOKEN_VALIDITY = 60*60;
 	
@@ -31,6 +37,7 @@ public class JwtAuthenticationHelper {
 	
 	public Boolean isTokenExpired(String token)
 	{
+		log.debug("Checking if token is still valid");
 		Claims claims =  getClaimsFromToken(token);
 		Date expDate = claims.getExpiration();
 		return expDate.before(new Date());
