@@ -6,6 +6,7 @@ import com.gautami.authorization.exception.InvalidRequest;
 import com.gautami.authorization.model.User;
 import com.gautami.authorization.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,9 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    private static  final String keyForAdmin="fajbfuqwbfuwbeuicbwiuebciuwbefuibwuifbwbfiwb3fiubwiqubfiu3qwbfuiwbfjeafjkbwibfhiawf";
+    @Value("${secretKey}")
+    private String secretKey;
+
 
     @Autowired
     UserService userService;
@@ -31,7 +34,7 @@ public class UserController {
     @PostMapping("/createadmin")
     @ResponseStatus(HttpStatus.CREATED)
     public void createAdmin(@RequestBody AdminRequest request){
-        if(request.getKey().equals(keyForAdmin)) {
+        if(request.getKey().equals(secretKey)) {
             userService.createAdminUser(request);
         }else{
             //throw some error
