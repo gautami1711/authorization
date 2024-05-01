@@ -5,6 +5,7 @@ import com.gautami.authorization.Repository.UserRepository;
 import com.gautami.authorization.dto.AdminRequest;
 import com.gautami.authorization.dto.UserDto;
 import com.gautami.authorization.exception.AlreadyExists;
+import com.gautami.authorization.exception.NotFoundException;
 import com.gautami.authorization.model.Role;
 import com.gautami.authorization.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -51,6 +53,42 @@ public class UserService {
 
         userRepository.save(user);
   }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserById(Long id) {
+        User user= userRepository.findById(id).get();
+        if(user==null){
+            throw  new NotFoundException("User with the given Id not found");
+        }
+        return user;
+    }
+
+    public void updateUser(Long id,UserDto userRequest) {
+        User existingUser=userRepository.findByEmail(userRequest.getEmail());
+        if(existingUser!=null&&existingUser.getId()!=id){
+            throw new AlreadyExists("A user with the given email Id Already exists: "+userRequest.getEmail());
+        }
+        User user=userRepository.findById(id).get();
+        BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
+        String encodedPassword = bCryptPasswordEncoder.encode(userRequest.getPassword());
+
+        user.setUsername(userRequest.getUsername());
+        user.setPassword(encodedPassword);
+        user.setEmail(userRequest.getEmail());
+        userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        User user= userRepository.findById(id).get();
+        if(user==null){
+            throw  new NotFoundException("User with the given Id not found");
+        }
+        userRepository.deleteById(id);
+    }
+
 
     public void createAdminUser(AdminRequest request) {
         if (!userRepository.findByUsername("ADMIN").isPresent()) {

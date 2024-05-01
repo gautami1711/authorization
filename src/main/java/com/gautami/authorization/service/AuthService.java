@@ -2,6 +2,7 @@ package com.gautami.authorization.service;
 
 import com.gautami.authorization.dto.JwtRequest;
 import com.gautami.authorization.dto.JwtResponse;
+import com.gautami.authorization.exception.InvalidRequest;
 import com.gautami.authorization.jwt.JwtAuthenticationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +43,7 @@ public class AuthService {
             manager.authenticate(authenticationToken);
 
         }catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid Username or Password");
+            throw new InvalidRequest("Invalid Username or Password");
         }
     }
 
