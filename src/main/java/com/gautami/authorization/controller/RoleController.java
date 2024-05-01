@@ -5,6 +5,7 @@ import com.gautami.authorization.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class RoleController {
     private RoleService roleService;
 
     @PutMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public  void createRoles(@RequestBody List<Role> role){
         roleService.createRoles(role);

@@ -1,5 +1,6 @@
 package com.gautami.authorization.controller;
 
+import com.gautami.authorization.dto.AdminRequest;
 import com.gautami.authorization.dto.UserDto;
 import com.gautami.authorization.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
+    private static  final String keyForAdmin="fajbfuqwbfuwbeuicbwiuebciuwbefuibwuifbwbfiwb3fiubwiqubfiu3qwbfuiwbfjeafjkbwibfhiawf";
+
     @Autowired
     UserService userService;
 
@@ -18,4 +21,16 @@ public class UserController {
     public void registerUser(@RequestBody UserDto userRequest) {
         userService.createUser(userRequest);
     }
+
+
+    @PostMapping("/createadmin")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createAdmin(@RequestBody AdminRequest request){
+        if(request.getKey().equals(keyForAdmin)) {
+            userService.createAdminUser(request);
+        }else{
+            //throw some error
+        }
+    }
+
 }

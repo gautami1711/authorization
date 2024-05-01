@@ -32,12 +32,6 @@ public class User implements UserDetails {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(String password, String username, String email) {
-        this.password = password;
-        this.username = username;
-        this.email = email;
-    }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

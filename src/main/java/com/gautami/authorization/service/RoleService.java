@@ -15,10 +15,14 @@ public class RoleService {
 
 
     public void createRoles(List<Role> role) {
-        for(Role r:role){
-            if(roleRepository.findRoleByRoleName(r.getRoleName())==null) {
-                roleRepository.save(r);
+        for(int i=0;i<role.size();i++){
+            String roleName=role.get(i).getRoleName().toUpperCase();
+            if(!roleName.equalsIgnoreCase("ADMIN")){
+                roleName="ROLE_"+roleName;
+                role.get(i).setRoleName(roleName);
+                roleRepository.save(role.get(i));
             }
         }
     }
 }
+

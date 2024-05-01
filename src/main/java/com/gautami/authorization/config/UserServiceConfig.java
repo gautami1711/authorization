@@ -1,6 +1,5 @@
 package com.gautami.authorization.config;
 
-
 import com.gautami.authorization.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,29 +22,30 @@ public class UserServiceConfig {
 
 	@Autowired
 	JwtAuthenticationFilter filter;
-	
+
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception 
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception
 	{
-		
+
 		http
-			.csrf().disable()
-			.authorizeHttpRequests()
-			.anyRequest()
-			.authenticated()
-			.and()
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-		
+				.csrf().disable()
+				.authorizeHttpRequests()
+				.antMatchers("/user/register","/auth/login","/user/createadmin").permitAll()
+				.anyRequest()
+				.authenticated()
+				.and()
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
 		http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
-	
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception
 	{
 		return builder.getAuthenticationManager();
 	}
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder()
 	{
