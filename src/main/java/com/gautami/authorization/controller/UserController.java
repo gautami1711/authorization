@@ -2,6 +2,7 @@ package com.gautami.authorization.controller;
 
 import com.gautami.authorization.dto.AdminRequest;
 import com.gautami.authorization.dto.UserDto;
+import com.gautami.authorization.exception.InvalidRequest;
 import com.gautami.authorization.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class UserController {
             userService.createAdminUser(request);
         }else{
             //throw some error
+            throw new InvalidRequest("The key given is not correct, please give correct key to proceed");
         }
     }
 

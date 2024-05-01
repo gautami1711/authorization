@@ -4,6 +4,7 @@ import com.gautami.authorization.Repository.RoleRepository;
 import com.gautami.authorization.Repository.UserRepository;
 import com.gautami.authorization.dto.AdminRequest;
 import com.gautami.authorization.dto.UserDto;
+import com.gautami.authorization.exception.AlreadyExists;
 import com.gautami.authorization.model.Role;
 import com.gautami.authorization.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class UserService {
         User existingUser=userRepository.findByEmail(userRequest.getEmail());
         if(existingUser!=null){
             //throw some exception
-            return;
+            throw new AlreadyExists("A user with the given email already exists");
         }
 
         BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
