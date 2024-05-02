@@ -46,10 +46,10 @@ public class UserService {
         user.setUsername(userRequest.getUsername());
         user.setPassword(encodedPassword);
         user.setEmail(userRequest.getEmail());
-        Role role = roleRepository.findRoleByRoleName("ROLE_USER");
+        Role role = roleRepository.findRoleByRoleName(Role.RoleName.ROLE_USER);
         if (role == null) {
             role = new Role();
-            role.setRoleName("ROLE_USER");
+            role.setRoleName(Role.RoleName.ROLE_USER);
             roleRepository.save(role);
         }
 
@@ -112,7 +112,7 @@ public class UserService {
             adminUser.setPassword(encodedPassword);
             adminUser.setEmail(request.getEmail());
             Role role=new Role();
-            role.setRoleName("ROLE_ADMIN");
+            role.setRoleName(Role.RoleName.ROLE_ADMIN);
             Set<Role> roleSet=new HashSet<>();
             roleSet.add(role);
             adminUser.setRoles(roleSet);

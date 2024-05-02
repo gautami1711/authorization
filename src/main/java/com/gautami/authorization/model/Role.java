@@ -15,9 +15,17 @@ import javax.persistence.*;
 @AllArgsConstructor
 public class Role {
 
+    public enum RoleName {
+        ROLE_USER,
+        ROLE_ADMIN
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String roleName;
+
+    @Enumerated(EnumType.STRING)
+    private RoleName roleName;
 
 }

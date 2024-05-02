@@ -2,10 +2,10 @@ package com.gautami.authorization.service;
 
 import com.gautami.authorization.Repository.RoleRepository;
 import com.gautami.authorization.model.Role;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoleService {
@@ -18,15 +18,11 @@ public class RoleService {
     }
 
     public void createRoles(List<Role> role) {
+
         for(int i=0;i<role.size();i++){
-            String roleName=role.get(i).getRoleName().toUpperCase();
-            if(!roleName.equalsIgnoreCase("ADMIN")){
-                roleName="ROLE_"+roleName;
-                Role existing=roleRepository.findRoleByRoleName(roleName);
-                if(existing==null) {
-                    role.get(i).setRoleName(roleName);
-                    roleRepository.save(role.get(i));
-                }
+            Optional<Role> ex= Optional.ofNullable(roleRepository.findRoleByRoleName(role.get(i).getRoleName()));
+            if(!ex.isPresent()){
+                roleRepository.save(role.get(i));
             }
         }
     }
