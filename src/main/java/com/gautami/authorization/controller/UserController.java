@@ -60,14 +60,26 @@ public class UserController {
 
     @PostMapping("/createadmin")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createAdmin(@RequestBody AdminRequest request) {
+    public void createAdmin(@Valid @RequestBody AdminRequest request,BindingResult bindingResult) {
+
+        if (bindingResult.hasFieldErrors("username")) {
+            throw new InvalidRequest("Username should not be empty and should have a minimum length of 3 characters.");
+        }
+
+        if (bindingResult.hasFieldErrors("password")) {
+            throw new InvalidRequest("Password should not be empty and should have a minimum length of 8 characters.");
+        }
+
+        if (bindingResult.hasFieldErrors("email")) {
+            throw new InvalidRequest("Please enter a valid value for email address.");
+        }
+
         if (request.getKey().equals(secretKey)) {
             userService.createAdminUser(request);
             return;
         }
         //throw some error
         throw new InvalidRequest("The key given is not correct, please give correct key to proceed");
-
     }
 
     @GetMapping
