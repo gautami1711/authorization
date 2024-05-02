@@ -18,15 +18,19 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
-
-    @Autowired
     AuthenticationManager manager;
 
-    @Autowired
     JwtAuthenticationHelper jwtHelper;
 
-    @Autowired
+
     UserDetailsService userDetailsService;
+
+    @Autowired
+    public AuthService(AuthenticationManager manager,JwtAuthenticationHelper jwtHelper, UserDetailsService userDetailsService){
+        this.manager=manager;
+        this.jwtHelper=jwtHelper;
+        this.userDetailsService=userDetailsService;
+    }
 
     public JwtResponse login(JwtRequest jwtRequest) {
         log.info("starting the user login process to generate token");

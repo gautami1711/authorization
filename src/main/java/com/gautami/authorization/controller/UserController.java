@@ -9,15 +9,10 @@ import com.gautami.authorization.exception.NotFoundException;
 import com.gautami.authorization.model.Role;
 import com.gautami.authorization.model.User;
 import com.gautami.authorization.service.UserService;
-import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,12 +26,16 @@ public class UserController {
     @Value("${secretKey}")
     private String secretKey;
 
+    private UserService userService;
+
+    private UserRepository userRepository;
+
 
     @Autowired
-    UserService userService;
-
-    @Autowired
-    UserRepository userRepository;
+    public UserController(UserService userService, UserRepository userRepository) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -50,10 +49,11 @@ public class UserController {
     public void createAdmin(@RequestBody AdminRequest request) {
         if (request.getKey().equals(secretKey)) {
             userService.createAdminUser(request);
-        } else {
-            //throw some error
-            throw new InvalidRequest("The key given is not correct, please give correct key to proceed");
+            return;
         }
+        //throw some error
+        throw new InvalidRequest("The key given is not correct, please give correct key to proceed");
+
     }
 
     @GetMapping
@@ -90,13 +90,13 @@ public class UserController {
         Set<Role> permittedRole = permitUser.get().getRoles();
 
         boolean flag = permittedRole.stream().anyMatch(role -> role.getRoleName().equalsIgnoreCase("ROLE_ADMIN"));
-        if (flag) {
-            userService.deleteUser(id);
-            return;
-        } else if (permitUser.get().getId() == id) {
+
+
+        if (flag || permitUser.get().getId() == id) {
             userService.deleteUser(id);
             return;
         }
+
         throw new Forbidden("You are not authorized to delete the user!!!!");
     }
 

@@ -26,29 +26,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
 
-    @Autowired
-    private JwtAuthenticationHelper jwtHelper;
+    private final JwtAuthenticationHelper jwtHelper;
+
+
+    private final UserDetailsService userDetailsService;
+
+    private static final String EXPIRED_TOKEN_MESSAGE="The token has expired, please generate a new token";
 
     @Autowired
-    UserDetailsService userDetailsService;
+    public JwtAuthenticationFilter(JwtAuthenticationHelper jwtHelper,UserDetailsService userDetailsService){
+        this.jwtHelper=jwtHelper;
+        this.userDetailsService=userDetailsService;
+    }
+
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String requestHeader = request.getHeader("Authorization");
-        String username = null;
-        String token = null;
+        String username;
+        String token;
         if (requestHeader != null && requestHeader.startsWith("Bearer")) {
             log.debug("Starting filtering of request!!!!!");
             token = requestHeader.substring(7);
             try {
                 username = jwtHelper.getUsernameFromToken(token);
-            }
-            catch (ExpiredJwtException e){
+            } catch (ExpiredJwtException e) {
                 // Handle expired token
-                log.error("The token has expired, please generate a new token", e);
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The token has expired, please generate a new token");
+                log.error(EXPIRED_TOKEN_MESSAGE, e);
+                String errorMessage = "{ \"error\": \"" + EXPIRED_TOKEN_MESSAGE + "\" }";
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json");
+                response.getWriter().write(errorMessage);
                 return;
             }
             log.info("Fetched the username from the token: {}", username);
@@ -56,14 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 try {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     log.info("User details fetched from db");
-                    try {
-                        jwtHelper.isTokenExpired(token);
-                    } catch (ExpiredJwtException e) {
-                        // Handle expired token
-						log.error("The token has expired, please generate a new token", e);
-						response.sendError(HttpServletResponse.SC_BAD_REQUEST, "The token has expired, please generate a new token");
-						return;
-                    }
+                    checkingTokenExpiration(token,response);
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(token, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
@@ -71,13 +74,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 } catch (NotFoundException e) {
                     // Handle NotFoundException
                     log.error("Username in the token not found, please provide a valid token", e);
-                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Username in the token not found, please provide a valid token");
+                    String errorMessage = "{ \"error\": \"Username in the token not found, please provide a valid token\" }";
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    response.setContentType("application/json");
+                    response.getWriter().write(errorMessage);
                     return;
                 }
 
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void checkingTokenExpiration(String token ,HttpServletResponse response)throws IOException{
+        try {
+            jwtHelper.isTokenExpired(token);
+        } catch (ExpiredJwtException e) {
+            // Handle expired token
+            log.error(EXPIRED_TOKEN_MESSAGE, e);
+            String errorMessage = "{ \"error\": \"" + EXPIRED_TOKEN_MESSAGE + "\" }";
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setContentType("application/json");
+            response.getWriter().write(errorMessage);
+        }
     }
 
 

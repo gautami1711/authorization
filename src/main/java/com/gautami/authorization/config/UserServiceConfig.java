@@ -24,8 +24,13 @@ public class UserServiceConfig {
 	private static final Logger log = LoggerFactory.getLogger(UserServiceConfig.class);
 
 
+
+	private JwtAuthenticationFilter filter;
+
 	@Autowired
-	JwtAuthenticationFilter filter;
+	public UserServiceConfig(JwtAuthenticationFilter filter) {
+		this.filter = filter;
+	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception

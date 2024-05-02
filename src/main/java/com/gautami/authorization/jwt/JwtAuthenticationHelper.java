@@ -1,6 +1,5 @@
 package com.gautami.authorization.jwt;
 
-import com.gautami.authorization.exception.InvalidRequest;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -26,7 +25,7 @@ public class JwtAuthenticationHelper {
 	@Value("${secretKey}")
 	private String secretKey;
 
-	private static final long JWT_TOKEN_VALIDITY = 60*60;
+	private static final long JWT_TOKEN_VALIDITY = 60*60l;
 	
 	public String getUsernameFromToken(String token)
 	{

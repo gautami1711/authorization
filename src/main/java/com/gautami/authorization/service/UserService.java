@@ -20,11 +20,16 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    @Autowired
-    UserRepository userRepository;
 
-    @Autowired
-    RoleRepository roleRepository;
+    private UserRepository userRepository;
+
+
+    private RoleRepository roleRepository;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public void createUser(UserDto userRequest) {
 

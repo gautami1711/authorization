@@ -10,9 +10,12 @@ import java.util.List;
 @Service
 public class RoleService {
 
-    @Autowired
-    RoleRepository roleRepository;
 
+    private RoleRepository roleRepository;
+
+    public RoleService(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
     public void createRoles(List<Role> role) {
         for(int i=0;i<role.size();i++){

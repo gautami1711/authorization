@@ -1,6 +1,7 @@
 package com.gautami.authorization.controller;
 
 import com.gautami.authorization.model.Role;
+import com.gautami.authorization.service.AuthService;
 import com.gautami.authorization.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,12 @@ import java.util.List;
 @RequestMapping("/role")
 public class RoleController {
 
-    @Autowired
     private RoleService roleService;
+
+    @Autowired
+    public RoleController(RoleService roleService){
+        this.roleService=roleService;
+    }
 
     @PutMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
