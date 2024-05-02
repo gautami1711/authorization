@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -59,11 +60,11 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        User user= userRepository.findById(id).get();
-        if(user==null){
+        Optional<User> user= userRepository.findById(id);
+        if(!user.isPresent()){
             throw  new NotFoundException("User with the given Id not found");
         }
-        return user;
+        return user.get();
     }
 
     public void updateUser(Long id,UserDto userRequest) {
@@ -71,27 +72,34 @@ public class UserService {
         if(existingUser!=null&&existingUser.getId()!=id){
             throw new AlreadyExists("A user with the given email Id Already exists: "+userRequest.getEmail());
         }
-        User user=userRepository.findById(id).get();
-        BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
-        String encodedPassword = bCryptPasswordEncoder.encode(userRequest.getPassword());
 
-        user.setUsername(userRequest.getUsername());
-        user.setPassword(encodedPassword);
-        user.setEmail(userRequest.getEmail());
-        userRepository.save(user);
+        Optional<User> user=userRepository.findById(id);
+        if(user.isPresent()) {
+            User existing=user.get();
+            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+            String encodedPassword = bCryptPasswordEncoder.encode(userRequest.getPassword());
+
+            existing.setUsername(userRequest.getUsername());
+            existing.setPassword(encodedPassword);
+            existing.setEmail(userRequest.getEmail());
+            userRepository.save(existing);
+            return;
+        }
+        throw new NotFoundException("User with given id not found");
     }
 
     public void deleteUser(Long id) {
+
         User user= userRepository.findById(id).get();
         if(user==null){
-            throw  new NotFoundException("User with the given Id not found");
+            throw  new NotFoundException("User to be deleted is not found");
         }
         userRepository.deleteById(id);
     }
 
 
     public void createAdminUser(AdminRequest request) {
-        if (!userRepository.findByUsername("ADMIN").isPresent()) {
+        if (!userRepository.findByUsername(request.getUsername()).isPresent()) {
             User adminUser = new User();
             adminUser.setUsername(request.getUsername());
             BCryptPasswordEncoder bCryptPasswordEncoder= new BCryptPasswordEncoder();
@@ -104,6 +112,8 @@ public class UserService {
             roleSet.add(role);
             adminUser.setRoles(roleSet);
             userRepository.save(adminUser);
+        }else{
+            throw new AlreadyExists("An Admin user has already been initialized with the given userName");
         }
     }
 }

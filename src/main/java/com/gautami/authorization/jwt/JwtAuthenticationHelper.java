@@ -1,6 +1,8 @@
 package com.gautami.authorization.jwt;
 
+import com.gautami.authorization.exception.InvalidRequest;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -32,20 +34,32 @@ public class JwtAuthenticationHelper {
 		return claims.getSubject();
 	}
 	
-	public Claims getClaimsFromToken(String token)
+	public Claims getClaimsFromToken(String token) throws  ExpiredJwtException
 	{
-		Claims claims = Jwts.parserBuilder().setSigningKey(secretKey.getBytes())
-				.build().parseClaimsJws(token).getBody();
-		return claims;
+		Claims claims=null;
+		try{
+			 claims = Jwts.parserBuilder().setSigningKey(secretKey.getBytes())
+					.build().parseClaimsJws(token).getBody();
+			return claims;
+		}catch (ExpiredJwtException e){
+			throw new ExpiredJwtException(null, claims, "Token expired: " + token);
+
+		}
+
+
 	}
-	
-	public Boolean isTokenExpired(String token)
-	{
+
+	public Boolean isTokenExpired(String token) throws ExpiredJwtException {
 		log.debug("Checking if token is still valid");
-		Claims claims =  getClaimsFromToken(token);
+		Claims claims = getClaimsFromToken(token);
 		Date expDate = claims.getExpiration();
-		return expDate.before(new Date());
+		if (expDate.before(new Date())) {
+			throw new ExpiredJwtException(null, claims, "Token expired: " + token);
+		}
+		return true;
 	}
+
+
 
 	public String generateToken(UserDetails userDetails) {
 		

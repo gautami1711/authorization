@@ -19,8 +19,11 @@ public class RoleService {
             String roleName=role.get(i).getRoleName().toUpperCase();
             if(!roleName.equalsIgnoreCase("ADMIN")){
                 roleName="ROLE_"+roleName;
-                role.get(i).setRoleName(roleName);
-                roleRepository.save(role.get(i));
+                Role existing=roleRepository.findRoleByRoleName(roleName);
+                if(existing==null) {
+                    role.get(i).setRoleName(roleName);
+                    roleRepository.save(role.get(i));
+                }
             }
         }
     }
